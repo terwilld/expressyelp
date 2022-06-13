@@ -19,7 +19,6 @@ const dbURL = process.env.DB_URL  || 'mongodb://127.0.0.1:27017/yelp-camp'
 console.log(`using this database: ${dbURL}`)
 
 
-//DB_URL=mongodb+srv://terwilld:tmAYXk5gJDu9PgpE@cluster0.hdgci.mongodb.net/yelp-camp?retryWrites=true&w=majority
 
 
 // mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp',{
