@@ -10,6 +10,7 @@ if (process.env.NODE_ENV !== "production") {
 
 const express = require('express');
 const mongoose = require('mongoose');
+const ejsMate = require('ejs-mate')
 const Campground = require('./models/campground')
 const methodOverride = require('method-override')
 
@@ -44,6 +45,7 @@ db.once("open", () => {
     console.log("Database connected");
 });
 
+app.engine('ejs', ejsMate)
 app.set('view engine','ejs')
 app.set('views', path.join(__dirname, 'views'))
 app.use(express.urlencoded({ extended : true }))
@@ -61,31 +63,53 @@ app.get('/campgrounds', async(req,res) => {
     res.render('campgrounds/index', {campgrounds})
 })
 
-app.post('/campgrounds', async(req,res) => {
-//    console.log(req.body)
-    const campgroundData = req.body.campground
-    const newCampground = new Campground(campgroundData)
-    await newCampground.save()
-    console.log(newCampground)
-    res.redirect(`campgrounds/${newCampground._id}`)
+
+
+app.post('/campgrounds', async (req, res) => {
+    const campground = new Campground(req.body.campground);
+    await campground.save();
+    console.log("test")
+    console.log(campground)
+    res.redirect(`/campgrounds/${campground._id}`)
 })
+
+
+// app.post('/campgrounds', async(req,res) => {
+// //    console.log(req.body)
+//     const campgroundData = req.body.campground
+//     const newCampground = new Campground(campgroundData)
+//     await newCampground.save()
+//     console.log(newCampground)
+//     console.log("test do we get this far")
+//     console.log(newCampground._id)
+//     res.redirect(`campgrounds/${newCampground._id}`)
+// })
 
 
 app.get('/campgrounds/new', (req,res) => {
     res.render('campgrounds/new')
 })
 
-app.get('/campgrounds/:id', async(req,res) => {
-    const {id} = req.params
-    const myCampground = await Campground.findById(id)
-    res.render('campgrounds/show',{campground:myCampground})
-})
+// app.get('/campgrounds/:id', async(req,res) => {
+//     console.log("inside campgrounds id")
+//     const {id} = req.params
+//     console.log(`this is my id ${id}`)
+//     const myCampground = await Campground.findById(id)
+//     res.render('campgrounds/show',{campground:myCampground})
+// })
+app.get('/campgrounds/:id', async (req, res,) => {
+    const campground = await Campground.findById(req.params.id)
+    console.log("in show")
+    console.log(campground)
+    console.log("aftercampground")    
+    res.render('campgrounds/show', { campground });
+});
 
 
 app.get('/campgrounds/:id/edit', async(req,res) => {
     const {id} = req.params
     const myCampground = await Campground.findById(id)
-    res.render('campgrounds/edit',{myCampground})
+    res.render('campgrounds/edit',{campground:myCampground})
 })
 
 app.put('/campgrounds/:id', async(req,res) => {
@@ -99,8 +123,9 @@ app.put('/campgrounds/:id', async(req,res) => {
 app.delete('/campgrounds/:id', async (req,res) => {
     console.log("Delete request sent")
     const {id} = req.params
+    console.log(`id: ${id}`)
     //res.send(id)
-    const deletedCampground = await Campground.findByIdAndDelete(id);
+    await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds/')
 //    res.send("fubark")
 })
